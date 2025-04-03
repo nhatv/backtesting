@@ -4,10 +4,10 @@ from backtesting.test import SMA, GOOG
 import yfinance as yf
 import pandas as pd
 
-data = yf.download("AAPL", start="2024-01-01", end="2025-01-01")
-data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
-data.index = pd.to_datetime(data.index)
-data.dropna(inplace=True)
+data = yf.download("AAPL", start="2024-01-01", end="2025-01-01", multi_level_index=False)
+# data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
+# data.index = pd.to_datetime(data.index)
+# data.dropna(inplace=True)
 
 
 class SmaCross(Strategy):
@@ -28,14 +28,14 @@ class SmaCross(Strategy):
             self.sell()
 
 
-bt = Backtest(GOOG, SmaCross,
+bt = Backtest(data, SmaCross,
               cash=10000, commission=.002,
               exclusive_orders=True)
 
 
-print((GOOG))
-print(type(data.columns))
-#output = bt.run()
-#print(output)
+# print()
+# print(type(data.columns))
+output = bt.run()
+print(output)
 #print(yf.download("AAPL", period='1mo'))
 #bt.plot()
