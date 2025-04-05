@@ -9,6 +9,9 @@ data = yf.download("AAPL", start="2024-01-01", end="2025-01-01", multi_level_ind
 # data.index = pd.to_datetime(data.index)
 # data.dropna(inplace=True)
 
+def EMA(arr: pd.Series, n: int) -> pd.Series:
+    return pd.Series(arr).ewm(span=n).mean()
+
 
 class SmaCross(Strategy):
     n1 = 10
@@ -27,8 +30,24 @@ class SmaCross(Strategy):
             self.position.close()
             self.sell()
 
+class EmaCross(Strategy):
+    n1 = 10
+    n2 = 50
+    
+    def init(self):
+        self.ema1 = self.I(EMA, self.data.Close, self.n1)
+        self.ema2 = self.I(EMA, self.data.Close, self.n2)
 
-bt = Backtest(data, SmaCross,
+    def next(self):
+        if crossover(self.ema1, self.ema2):
+            self.position.close()
+            self.buy()
+        elif crossover(self.ema2, self.ema1):
+            self.position.close()
+            self.sell()
+
+
+bt = Backtest(data, EmaCross,
               cash=10000, commission=.002,
               exclusive_orders=True)
 
