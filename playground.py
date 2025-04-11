@@ -4,7 +4,7 @@ from backtesting.test import SMA, GOOG
 import yfinance as yf
 import pandas as pd
 
-data = yf.download("BTC-USD", start="2024-01-01", end="2025-01-01", multi_level_index=False, interval= "1h")
+data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "15m")
 # data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
 # data.index = pd.to_datetime(data.index)
 # data.dropna(inplace=True)
@@ -33,6 +33,8 @@ class SmaCross(Strategy):
 class EmaCross(Strategy):
     n1 = 50
     n2 = 200
+    tp = 2
+    sl = -1
     
     def init(self):
         self.ema1 = self.I(EMA, self.data.Close, self.n1)
@@ -44,7 +46,7 @@ class EmaCross(Strategy):
             self.position.close()
             self.buy()
             self.positionActive = True
-        elif self.position.pl_pct >= 2 or self.position.pl_pct <= -1: # check if its time to get OUT
+        elif (self.position.pl_pct >= self.tp or self.position.pl_pct <= self.sl) and self.positionActive == True: # check if its time to get OUT
             self.position.close()
             self.sell()
             self.positionActive = False
@@ -69,4 +71,4 @@ output = bt.run()
 print(output)
 
 
-bt.plot()
+# bt.plot()
