@@ -37,18 +37,28 @@ class EmaCross(Strategy):
     def init(self):
         self.ema1 = self.I(EMA, self.data.Close, self.n1)
         self.ema2 = self.I(EMA, self.data.Close, self.n2)
+        self.positionActive = False
 
     def next(self):
-        if crossover(self.ema1, self.ema2):
+        if crossover(self.ema1, self.ema2) and self.positionActive == False:# get IN to the trade
             self.position.close()
             self.buy()
-        elif crossover(self.ema2, self.ema1):
+            self.positionActive = True
+        elif self.position.pl_pct >= 2 or self.position.pl_pct <= -1: # check if its time to get OUT
             self.position.close()
             self.sell()
+            self.positionActive = False
+
+    #def next(self):
+        #if Condition to buy exists AND not already in trade:
+            #self.buy()
+            #turn on flag to signal 'in a trade' flag = 1
+        #elif self.position.close:
+            #TP or SL
 
 
 bt = Backtest(data, EmaCross,
-              cash=100000, commission=.002,
+              cash=1000000, commission=.002,
               exclusive_orders=True)
 
 
@@ -59,4 +69,4 @@ output = bt.run()
 print(output)
 
 
-#bt.plot()
+bt.plot()
