@@ -4,7 +4,7 @@ from backtesting.test import SMA, GOOG
 import yfinance as yf
 import pandas as pd
 
-data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "15m")
+data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "30m")
 # data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
 # data.index = pd.to_datetime(data.index)
 # data.dropna(inplace=True)
@@ -59,16 +59,36 @@ class EmaCross(Strategy):
             #TP or SL
 
 
-bt = Backtest(data, EmaCross,
+
+
+if __name__ == "__main__":
+    bt = Backtest(data, EmaCross,
               cash=1000000, commission=.002,
               exclusive_orders=True)
 
 
-print(data)
-# print(type(data.columns))
+    print(data)
+    # print(type(data.columns))
 
-output = bt.run()
-print(output)
+    output = bt.run()
+    important_ls = ["Equity Final [$]", 
+                    "Equity Peak [$]", 
+                    "Commissions [$]", 
+                    "Return [%]", 
+                    "Buy & Hold Return [%]", 
+                    "# Trades", 
+                    "Win Rate [%]", 
+                    "Best Trade [%]", 
+                    "Worst Trade [%]", 
+                    "Avg. Trade [%]", 
+                    "Max. Trade Duration", 
+                    "Avg. Trade Duration", 
+                    "_strategy"]
+    important = output[important_ls].to_frame().T.rename(columns={"_strategy": "Strategy"}).set_index("Strategy")
+    print(important.T)
 
-
-# bt.plot()
+    try:
+        with pd.ExcelWriter("out.xlsx", mode='a', if_sheet_exists="overlay") as writer:
+            important.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, header=False)
+    except FileNotFoundError:
+        important.to_excel("out.xlsx")
