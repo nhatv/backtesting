@@ -4,14 +4,8 @@ from backtesting.test import SMA, GOOG
 import yfinance as yf
 import pandas as pd
 
-data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "30m")
-# data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
-# data.index = pd.to_datetime(data.index)
-# data.dropna(inplace=True)
-
 def EMA(arr: pd.Series, n: int) -> pd.Series:
     return pd.Series(arr).ewm(span=n).mean()
-
 
 class SmaCross(Strategy):
     n1 = 10
@@ -58,11 +52,9 @@ class EmaCross(Strategy):
         #elif self.position.close:
             #TP or SL
 
-
-
-
 if __name__ == "__main__":
-    bt = Backtest(data, EmaCross,
+    data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "15m")
+    bt = Backtest(data, SmaCross,
               cash=1000000, commission=.002,
               exclusive_orders=True)
 
@@ -71,6 +63,7 @@ if __name__ == "__main__":
     # print(type(data.columns))
 
     output = bt.run()
+
     important_ls = ["Equity Final [$]", 
                     "Equity Peak [$]", 
                     "Commissions [$]", 
@@ -84,11 +77,14 @@ if __name__ == "__main__":
                     "Max. Trade Duration", 
                     "Avg. Trade Duration", 
                     "_strategy"]
+    # Format row names to column names, set Strategy as the column index
     important = output[important_ls].to_frame().T.rename(columns={"_strategy": "Strategy"}).set_index("Strategy")
     print(important.T)
-
-    try:
-        with pd.ExcelWriter("out.xlsx", mode='a', if_sheet_exists="overlay") as writer:
-            important.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, header=False)
-    except FileNotFoundError:
-        important.to_excel("out.xlsx")
+    write_bool = input("Write to excel? (Y/n)\n")
+    if write_bool.lower() == "y" or write_bool == "":
+        try:
+            # Append to excel file
+            with pd.ExcelWriter("out.xlsx", mode='a', if_sheet_exists="overlay") as writer:
+                important.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, header=False)
+        except FileNotFoundError: # Create one if there is no excel file
+            important.to_excel("out.xlsx")
