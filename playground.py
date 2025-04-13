@@ -80,7 +80,7 @@ if __name__ == "__main__":
     # Format row names to column names, set Strategy as the column index
     important = output[important_ls].to_frame().T.rename(columns={"_strategy": "Strategy"}).set_index("Strategy")
     print(important.T)
-    write_bool = input("Write to excel? (Y/n)\n")
+    write_bool = input("Write to excel? (y/n)\n")
     if write_bool.lower() == "y" or write_bool == "":
         try:
             # Append to excel file
