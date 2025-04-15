@@ -53,18 +53,18 @@ class EmaCross(Strategy):
             #TP or SL
 
 if __name__ == "__main__":
+    strat = EmaCross
     data = yf.download("BTC-USD", start="2025-03-01", end="2025-04-01", multi_level_index=False, interval= "15m")
-    bt = Backtest(data, SmaCross,
-              cash=1000000, commission=.002,
-              exclusive_orders=True)
+    bt = Backtest(data, strat, cash=1000000, commission=.002, exclusive_orders=True)
 
-
-    print(data)
+    # print(data)
     # print(type(data.columns))
 
     output = bt.run()
 
-    important_ls = ["Equity Final [$]", 
+    important_ls = ["Take Profit [%]", 
+                    "Stop Loss [%]", 
+                    "Equity Final [$]", 
                     "Equity Peak [$]", 
                     "Commissions [$]", 
                     "Return [%]", 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                     "Max. Trade Duration", 
                     "Avg. Trade Duration", 
                     "_strategy"]
-    # Format row names to column names, set Strategy as the column index
+    output["Take Profit [%]"], output["Stop Loss [%]"] = strat.tp , strat.sl
     important = output[important_ls].to_frame().T.rename(columns={"_strategy": "Strategy"}).set_index("Strategy")
     print(important.T)
     write_bool = input("Write to excel? (y/n)\n")
