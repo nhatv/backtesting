@@ -26,8 +26,8 @@ class SmaCross(Strategy):
 class EmaCross(Strategy):
     n1 = 50
     n2 = 200
-    tp = 2
-    sl = -1
+    tp = 2 #2
+    sl = -0.4 #-0.4
     
     def init(self):
         self.ema1 = self.I(EMA, self.data.Close, self.n1)

@@ -9,10 +9,10 @@ from Strategies import *
 if __name__ == "__main__":
     strat = EmaCross
     interval = "15m"
-    start = "2025-03-01"
-    end = "2025-04-01"
+    start = "2025-03-21" #2025-03-01
+    end = "2025-04-01"   #2025-04-01
     data = yf.download("BTC-USD", start=start, end=end, multi_level_index=False, interval=interval)
-    bt = Backtest(data, strat, cash=1000000, commission=.002, exclusive_orders=True)
+    bt = Backtest(data, strat, cash=1000000, commission=.004, exclusive_orders=True)
 
     # print(data)
     # print(type(data.columns))
