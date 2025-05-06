@@ -28,7 +28,7 @@ class EmaCross(Strategy):
     n2 = 200
     tp = 2 #2
     sl = -0.4 #-0.4
-    
+
     def init(self):
         self.ema1 = self.I(EMA, self.data.Close, self.n1)
         self.ema2 = self.I(EMA, self.data.Close, self.n2)
